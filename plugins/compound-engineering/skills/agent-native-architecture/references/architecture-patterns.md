@@ -203,6 +203,259 @@ tool("apply_pending", async () => {
 - docs/* (documentation)
 </pattern>
 
+<pattern name="unified-agent-architecture">
+## Unified Agent Architecture
+
+One execution engine, many agent types. All agents use the same orchestrator but with different configurations.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    AgentOrchestrator                         │
+├─────────────────────────────────────────────────────────────┤
+│  - Lifecycle management (start, pause, resume, stop)        │
+│  - Checkpoint/restore (for background execution)            │
+│  - Tool execution                                            │
+│  - Chat integration                                          │
+└─────────────────────────────────────────────────────────────┘
+          │                    │                    │
+    ┌─────┴─────┐        ┌─────┴─────┐        ┌─────┴─────┐
+    │ Research  │        │   Chat    │        │  Profile  │
+    │   Agent   │        │   Agent   │        │   Agent   │
+    └───────────┘        └───────────┘        └───────────┘
+    - web_search         - read_library       - read_photos
+    - write_file         - publish_to_feed    - write_file
+    - read_file          - web_search         - analyze_image
+```
+
+**Implementation:**
+
+```swift
+// All agents use the same orchestrator
+let session = try await AgentOrchestrator.shared.startAgent(
+    config: ResearchAgent.create(book: book),  // Config varies
+    tools: ResearchAgent.tools,                 // Tools vary
+    context: ResearchAgent.context(for: book)   // Context varies
+)
+
+// Agent types define their own configuration
+struct ResearchAgent {
+    static var tools: [AgentTool] {
+        [
+            FileTools.readFile(),
+            FileTools.writeFile(),
+            WebTools.webSearch(),
+            WebTools.webFetch(),
+        ]
+    }
+
+    static func context(for book: Book) -> String {
+        """
+        You are researching "\(book.title)" by \(book.author).
+        Save findings to Documents/Research/\(book.id)/
+        """
+    }
+}
+
+struct ChatAgent {
+    static var tools: [AgentTool] {
+        [
+            FileTools.readFile(),
+            FileTools.writeFile(),
+            BookTools.readLibrary(),
+            BookTools.publishToFeed(),  // Chat can publish directly
+            WebTools.webSearch(),
+        ]
+    }
+
+    static func context(library: [Book]) -> String {
+        """
+        You help the user with their reading.
+        Available books: \(library.map { $0.title }.joined(separator: ", "))
+        """
+    }
+}
+```
+
+**Benefits:**
+- Consistent lifecycle management across all agent types
+- Automatic checkpoint/resume (critical for mobile)
+- Shared tool protocol
+- Easy to add new agent types
+- Centralized error handling and logging
+</pattern>
+
+<pattern name="agent-to-ui-communication">
+## Agent-to-UI Communication
+
+When agents take actions, the UI should reflect them immediately. The user should see what the agent did.
+
+**Pattern 1: Shared Data Store (Recommended)**
+
+Agent writes through the same service the UI observes:
+
+```swift
+// Shared service
+class BookLibraryService: ObservableObject {
+    static let shared = BookLibraryService()
+    @Published var books: [Book] = []
+    @Published var feedItems: [FeedItem] = []
+
+    func addFeedItem(_ item: FeedItem) {
+        feedItems.append(item)
+        persist()
+    }
+}
+
+// Agent tool writes through shared service
+tool("publish_to_feed", async ({ bookId, content, headline }) => {
+    let item = FeedItem(bookId: bookId, content: content, headline: headline)
+    BookLibraryService.shared.addFeedItem(item)  // Same service UI uses
+    return { text: "Published to feed" }
+})
+
+// UI observes the same service
+struct FeedView: View {
+    @StateObject var library = BookLibraryService.shared
+
+    var body: some View {
+        List(library.feedItems) { item in
+            FeedItemRow(item: item)
+            // Automatically updates when agent adds items
+        }
+    }
+}
+```
+
+**Pattern 2: File System Observation**
+
+For file-based data, watch the file system:
+
+```swift
+class ResearchWatcher: ObservableObject {
+    @Published var files: [URL] = []
+    private var watcher: DirectoryWatcher?
+
+    func watch(bookId: String) {
+        let path = documentsURL.appendingPathComponent("Research/\(bookId)")
+
+        watcher = DirectoryWatcher(path: path) { [weak self] in
+            self?.reload(from: path)
+        }
+
+        reload(from: path)
+    }
+}
+
+// Agent writes files
+tool("write_file", { path, content }) -> {
+    writeFile(documentsURL.appendingPathComponent(path), content)
+    // DirectoryWatcher triggers UI update automatically
+}
+```
+
+**Pattern 3: Event Bus (Cross-Component)**
+
+For complex apps with multiple independent components:
+
+```typescript
+// Shared event bus
+const agentEvents = new EventEmitter();
+
+// Agent tool emits events
+tool("publish_to_feed", async ({ content }) => {
+    const item = await feedService.add(content);
+    agentEvents.emit('feed:new-item', item);
+    return { text: "Published" };
+});
+
+// UI components subscribe
+function FeedView() {
+    const [items, setItems] = useState([]);
+
+    useEffect(() => {
+        const handler = (item) => setItems(prev => [...prev, item]);
+        agentEvents.on('feed:new-item', handler);
+        return () => agentEvents.off('feed:new-item', handler);
+    }, []);
+
+    return <FeedList items={items} />;
+}
+```
+
+**What to avoid:**
+
+```swift
+// BAD: UI doesn't observe agent changes
+// Agent writes to database directly
+tool("publish_to_feed", { content }) {
+    database.insert("feed", content)  // UI doesn't see this
+}
+
+// UI loads once at startup, never refreshes
+struct FeedView: View {
+    let items = database.query("feed")  // Stale!
+}
+```
+</pattern>
+
+<pattern name="model-tier-selection">
+## Model Tier Selection
+
+Different agents need different intelligence levels. Use the cheapest model that achieves the outcome.
+
+| Agent Type | Recommended Tier | Reasoning |
+|------------|-----------------|-----------|
+| Chat/Conversation | Balanced | Fast responses, good reasoning |
+| Research | Balanced | Tool loops, not ultra-complex synthesis |
+| Content Generation | Balanced | Creative but not synthesis-heavy |
+| Complex Analysis | Powerful | Multi-document synthesis, nuanced judgment |
+| Profile/Onboarding | Powerful | Photo analysis, complex pattern recognition |
+| Simple Queries | Fast/Haiku | Quick lookups, simple transformations |
+
+**Implementation:**
+
+```swift
+enum ModelTier {
+    case fast      // claude-3-haiku: Quick, cheap, simple tasks
+    case balanced  // claude-3-sonnet: Good balance for most tasks
+    case powerful  // claude-3-opus: Complex reasoning, synthesis
+}
+
+struct AgentConfig {
+    let modelTier: ModelTier
+    let tools: [AgentTool]
+    let systemPrompt: String
+}
+
+// Research agent: balanced tier
+let researchConfig = AgentConfig(
+    modelTier: .balanced,
+    tools: researchTools,
+    systemPrompt: researchPrompt
+)
+
+// Profile analysis: powerful tier (complex photo interpretation)
+let profileConfig = AgentConfig(
+    modelTier: .powerful,
+    tools: profileTools,
+    systemPrompt: profilePrompt
+)
+
+// Quick lookup: fast tier
+let lookupConfig = AgentConfig(
+    modelTier: .fast,
+    tools: [readLibrary],
+    systemPrompt: "Answer quick questions about the user's library."
+)
+```
+
+**Cost optimization strategies:**
+- Start with balanced tier, only upgrade if quality insufficient
+- Use fast tier for tool-heavy loops where each turn is simple
+- Reserve powerful tier for synthesis tasks (comparing multiple sources)
+- Consider token limits per turn to control costs
+</pattern>
+
 <design_questions>
 ## Questions to Ask When Designing
 
@@ -212,4 +465,7 @@ tool("apply_pending", async () => {
 4. **What decisions should be hardcoded?** (security boundaries, approval requirements)
 5. **How does the agent verify its work?** (health checks, build verification)
 6. **How does the agent recover from mistakes?** (git rollback, approval gates)
+7. **How does the UI know when agent changes state?** (shared store, file watching, events)
+8. **What model tier does each agent type need?** (fast, balanced, powerful)
+9. **How do agents share infrastructure?** (unified orchestrator, shared tools)
 </design_questions>

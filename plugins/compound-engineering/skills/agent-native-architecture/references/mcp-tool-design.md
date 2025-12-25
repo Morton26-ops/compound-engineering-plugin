@@ -303,9 +303,187 @@ Use your judgment about importance ratings.
 ```
 </example>
 
+<principle name="dynamic-capability-discovery">
+## Dynamic Capability Discovery vs Static Tool Mapping
+
+**This pattern is specifically for agent-native apps** where you want the agent to have full access to an external API—the same access a user would have. It follows the core agent-native principle: "Whatever the user can do, the agent can do."
+
+If you're building a constrained agent with limited capabilities, static tool mapping may be intentional. But for agent-native apps integrating with HealthKit, HomeKit, GraphQL, or similar APIs:
+
+**Static Tool Mapping (Anti-pattern for Agent-Native):**
+Build individual tools for each API capability. Always out of date, limits agent to only what you anticipated.
+
+```typescript
+// ❌ Static: Every API type needs a hardcoded tool
+tool("read_steps", async ({ startDate, endDate }) => {
+  return healthKit.query(HKQuantityType.stepCount, startDate, endDate);
+});
+
+tool("read_heart_rate", async ({ startDate, endDate }) => {
+  return healthKit.query(HKQuantityType.heartRate, startDate, endDate);
+});
+
+tool("read_sleep", async ({ startDate, endDate }) => {
+  return healthKit.query(HKCategoryType.sleepAnalysis, startDate, endDate);
+});
+
+// When HealthKit adds glucose tracking... you need a code change
+```
+
+**Dynamic Capability Discovery (Preferred):**
+Build a meta-tool that discovers what's available, and a generic tool that can access anything.
+
+```typescript
+// ✅ Dynamic: Agent discovers and uses any capability
+
+// Discovery tool - returns what's available at runtime
+tool("list_available_capabilities", async () => {
+  const quantityTypes = await healthKit.availableQuantityTypes();
+  const categoryTypes = await healthKit.availableCategoryTypes();
+
+  return {
+    text: `Available health metrics:\n` +
+          `Quantity types: ${quantityTypes.join(", ")}\n` +
+          `Category types: ${categoryTypes.join(", ")}\n` +
+          `\nUse read_health_data with any of these types.`
+  };
+});
+
+// Generic access tool - type is a string, API validates
+tool("read_health_data", {
+  dataType: z.string(),  // NOT z.enum - let HealthKit validate
+  startDate: z.string(),
+  endDate: z.string(),
+  aggregation: z.enum(["sum", "average", "samples"]).optional()
+}, async ({ dataType, startDate, endDate, aggregation }) => {
+  // HealthKit validates the type, returns helpful error if invalid
+  const result = await healthKit.query(dataType, startDate, endDate, aggregation);
+  return { text: JSON.stringify(result, null, 2) };
+});
+```
+
+**When to Use Each Approach:**
+
+| Dynamic (Agent-Native) | Static (Constrained Agent) |
+|------------------------|---------------------------|
+| Agent should access anything user can | Agent has intentionally limited scope |
+| External API with many endpoints (HealthKit, HomeKit, GraphQL) | Internal domain with fixed operations |
+| API evolves independently of your code | Tightly coupled domain logic |
+| You want full action parity | You want strict guardrails |
+
+**The agent-native default is Dynamic.** Only use Static when you're intentionally limiting the agent's capabilities.
+
+**Complete Dynamic Pattern:**
+
+```swift
+// 1. Discovery tool: What can I access?
+tool("list_health_types", "Get available health data types") { _ in
+    let store = HKHealthStore()
+
+    let quantityTypes = HKQuantityTypeIdentifier.allCases.map { $0.rawValue }
+    let categoryTypes = HKCategoryTypeIdentifier.allCases.map { $0.rawValue }
+    let characteristicTypes = HKCharacteristicTypeIdentifier.allCases.map { $0.rawValue }
+
+    return ToolResult(text: """
+        Available HealthKit types:
+
+        ## Quantity Types (numeric values)
+        \(quantityTypes.joined(separator: ", "))
+
+        ## Category Types (categorical data)
+        \(categoryTypes.joined(separator: ", "))
+
+        ## Characteristic Types (user info)
+        \(characteristicTypes.joined(separator: ", "))
+
+        Use read_health_data or write_health_data with any of these.
+        """)
+}
+
+// 2. Generic read: Access any type by name
+tool("read_health_data", "Read any health metric", {
+    dataType: z.string().describe("Type name from list_health_types"),
+    startDate: z.string(),
+    endDate: z.string()
+}) { request in
+    // Let HealthKit validate the type name
+    guard let type = HKQuantityTypeIdentifier(rawValue: request.dataType)
+                     ?? HKCategoryTypeIdentifier(rawValue: request.dataType) else {
+        return ToolResult(
+            text: "Unknown type: \(request.dataType). Use list_health_types to see available types.",
+            isError: true
+        )
+    }
+
+    let samples = try await healthStore.querySamples(type: type, start: startDate, end: endDate)
+    return ToolResult(text: samples.formatted())
+}
+
+// 3. Context injection: Tell agent what's available in system prompt
+func buildSystemPrompt() -> String {
+    let availableTypes = healthService.getAuthorizedTypes()
+
+    return """
+    ## Available Health Data
+
+    You have access to these health metrics:
+    \(availableTypes.map { "- \($0)" }.joined(separator: "\n"))
+
+    Use read_health_data with any type above. For new types not listed,
+    use list_health_types to discover what's available.
+    """
+}
+```
+
+**Benefits:**
+- Agent can use any API capability, including ones added after your code shipped
+- API is the validator, not your enum definition
+- Smaller tool surface (2-3 tools vs N tools)
+- Agent naturally discovers capabilities by asking
+- Works with any API that has introspection (HealthKit, GraphQL, OpenAPI)
+</principle>
+
+<principle name="crud-completeness">
+## CRUD Completeness
+
+Every data type the agent can create, it should be able to read, update, and delete. Incomplete CRUD = broken action parity.
+
+**Anti-pattern: Create-only tools**
+```typescript
+// ❌ Can create but not modify or delete
+tool("create_experiment", { hypothesis, variable, metric })
+tool("write_journal_entry", { content, author, tags })
+// User: "Delete that experiment" → Agent: "I can't do that"
+```
+
+**Correct: Full CRUD for each entity**
+```typescript
+// ✅ Complete CRUD
+tool("create_experiment", { hypothesis, variable, metric })
+tool("read_experiment", { id })
+tool("update_experiment", { id, updates: { hypothesis?, status?, endDate? } })
+tool("delete_experiment", { id })
+
+tool("create_journal_entry", { content, author, tags })
+tool("read_journal", { query?, dateRange?, author? })
+tool("update_journal_entry", { id, content, tags? })
+tool("delete_journal_entry", { id })
+```
+
+**The CRUD Audit:**
+For each entity type in your app, verify:
+- [ ] Create: Agent can create new instances
+- [ ] Read: Agent can query/search/list instances
+- [ ] Update: Agent can modify existing instances
+- [ ] Delete: Agent can remove instances
+
+If any operation is missing, users will eventually ask for it and the agent will fail.
+</principle>
+
 <checklist>
 ## MCP Tool Design Checklist
 
+**Fundamentals:**
 - [ ] Tool names describe capability, not use case
 - [ ] Inputs are data, not decisions
 - [ ] Outputs are rich (enough for agent to verify)
@@ -313,4 +491,16 @@ Use your judgment about importance ratings.
 - [ ] No business logic in tool implementations
 - [ ] Error states clearly communicated via `isError`
 - [ ] Descriptions explain what the tool does, not when to use it
+
+**Dynamic Capability Discovery (for agent-native apps):**
+- [ ] For external APIs where agent should have full access, use dynamic discovery
+- [ ] Include a `list_*` or `discover_*` tool for each API surface
+- [ ] Use string inputs (not enums) when the API validates
+- [ ] Inject available capabilities into system prompt at runtime
+- [ ] Only use static tool mapping if intentionally limiting agent scope
+
+**CRUD Completeness:**
+- [ ] Every entity has create, read, update, delete operations
+- [ ] Every UI action has a corresponding agent tool
+- [ ] Test: "Can the agent undo what it just did?"
 </checklist>
