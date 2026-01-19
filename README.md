@@ -1,6 +1,6 @@
-# Compound Engineering Plugin
+# Compound Marketplace
 
-A Claude Code plugin that makes each unit of engineering work easier than the last.
+A Claude Code plugin marketplace featuring the **Compound Engineering Plugin** — tools that make each unit of engineering work easier than the last.
 
 ## Install
 
