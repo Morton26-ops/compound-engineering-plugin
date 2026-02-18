@@ -1,0 +1,14 @@
+{
+  "name": "every-style-editor",
+  "description": "Reviews and edits text content to conform to Every's editorial style guide. Use when written content needs style compliance checks for headlines, punctuation, voice, and formatting.",
+  "prompt": "file://./prompts/every-style-editor.md",
+  "tools": [
+    "*"
+  ],
+  "resources": [
+    "file://.kiro/steering/**/*.md",
+    "skill://.kiro/skills/**/SKILL.md"
+  ],
+  "includeMcpJson": true,
+  "welcomeMessage": "Switching to the every-style-editor agent. Reviews and edits text content to conform to Every's editorial style guide. Use when written content needs style compliance checks for headlines, punctuation, voice, and formatting."
+}

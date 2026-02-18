@@ -1,0 +1,14 @@
+{
+  "name": "julik-frontend-races-reviewer",
+  "description": "Reviews JavaScript and Stimulus code for race conditions, timing issues, and DOM lifecycle problems. Use after implementing or modifying frontend controllers or async UI code.",
+  "prompt": "file://./prompts/julik-frontend-races-reviewer.md",
+  "tools": [
+    "*"
+  ],
+  "resources": [
+    "file://.kiro/steering/**/*.md",
+    "skill://.kiro/skills/**/SKILL.md"
+  ],
+  "includeMcpJson": true,
+  "welcomeMessage": "Switching to the julik-frontend-races-reviewer agent. Reviews JavaScript and Stimulus code for race conditions, timing issues, and DOM lifecycle problems. Use after implementing or modifying frontend controllers or async UI code."
+}
