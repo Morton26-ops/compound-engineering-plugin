@@ -55,6 +55,7 @@ function formatYamlValue(value: unknown): string {
   if (value === null || value === undefined) return ""
   if (typeof value === "number" || typeof value === "boolean") return String(value)
   const raw = String(value)
+  if (raw === "") return '""'
   if (raw.includes("\n")) {
     return `|\n${raw.split("\n").map((line) => `  ${line}`).join("\n")}`
   }

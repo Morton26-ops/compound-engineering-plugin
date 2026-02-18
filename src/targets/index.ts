@@ -6,6 +6,7 @@ import { convertClaudeToPi } from "../converters/claude-to-pi"
 import { convertClaudeToCopilot } from "../converters/claude-to-copilot"
 import { convertClaudeToGemini } from "../converters/claude-to-gemini"
 import { convertClaudeToKiro } from "../converters/claude-to-kiro"
+import { convertClaudeToCursor } from "../converters/claude-to-cursor"
 import { writeOpenCodeBundle } from "./opencode"
 import { writeCodexBundle } from "./codex"
 import { writeDroidBundle } from "./droid"
@@ -13,6 +14,7 @@ import { writePiBundle } from "./pi"
 import { writeCopilotBundle } from "./copilot"
 import { writeGeminiBundle } from "./gemini"
 import { writeKiroBundle } from "./kiro"
+import { writeCursorBundle } from "./cursor"
 
 export type TargetHandler = {
   name: string
@@ -63,5 +65,11 @@ export const targets: Record<string, TargetHandler> = {
     implemented: true,
     convert: convertClaudeToKiro,
     write: writeKiroBundle,
+  },
+  cursor: {
+    name: "cursor",
+    implemented: true,
+    convert: convertClaudeToCursor,
+    write: writeCursorBundle,
   },
 }
