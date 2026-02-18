@@ -1,11 +1,4 @@
 import type { ClaudePlugin } from "../types/claude"
-import type { OpenCodeBundle } from "../types/opencode"
-import type { CodexBundle } from "../types/codex"
-import type { DroidBundle } from "../types/droid"
-import type { PiBundle } from "../types/pi"
-import type { CopilotBundle } from "../types/copilot"
-import type { GeminiBundle } from "../types/gemini"
-import type { KiroBundle } from "../types/kiro"
 import { convertClaudeToOpenCode, type ClaudeToOpenCodeOptions } from "../converters/claude-to-opencode"
 import { convertClaudeToCodex } from "../converters/claude-to-codex"
 import { convertClaudeToDroid } from "../converters/claude-to-droid"
@@ -21,11 +14,11 @@ import { writeCopilotBundle } from "./copilot"
 import { writeGeminiBundle } from "./gemini"
 import { writeKiroBundle } from "./kiro"
 
-export type TargetHandler<TBundle = unknown> = {
+export type TargetHandler = {
   name: string
   implemented: boolean
-  convert: (plugin: ClaudePlugin, options: ClaudeToOpenCodeOptions) => TBundle | null
-  write: (outputRoot: string, bundle: TBundle) => Promise<void>
+  convert: (plugin: ClaudePlugin, options: ClaudeToOpenCodeOptions) => unknown
+  write: (outputRoot: string, bundle: any) => Promise<void>
 }
 
 export const targets: Record<string, TargetHandler> = {
@@ -38,37 +31,37 @@ export const targets: Record<string, TargetHandler> = {
   codex: {
     name: "codex",
     implemented: true,
-    convert: convertClaudeToCodex as TargetHandler<CodexBundle>["convert"],
-    write: writeCodexBundle as TargetHandler<CodexBundle>["write"],
+    convert: convertClaudeToCodex,
+    write: writeCodexBundle,
   },
   droid: {
     name: "droid",
     implemented: true,
-    convert: convertClaudeToDroid as TargetHandler<DroidBundle>["convert"],
-    write: writeDroidBundle as TargetHandler<DroidBundle>["write"],
+    convert: convertClaudeToDroid,
+    write: writeDroidBundle,
   },
   pi: {
     name: "pi",
     implemented: true,
-    convert: convertClaudeToPi as TargetHandler<PiBundle>["convert"],
-    write: writePiBundle as TargetHandler<PiBundle>["write"],
+    convert: convertClaudeToPi,
+    write: writePiBundle,
   },
   copilot: {
     name: "copilot",
     implemented: true,
-    convert: convertClaudeToCopilot as TargetHandler<CopilotBundle>["convert"],
-    write: writeCopilotBundle as TargetHandler<CopilotBundle>["write"],
+    convert: convertClaudeToCopilot,
+    write: writeCopilotBundle,
   },
   gemini: {
     name: "gemini",
     implemented: true,
-    convert: convertClaudeToGemini as TargetHandler<GeminiBundle>["convert"],
-    write: writeGeminiBundle as TargetHandler<GeminiBundle>["write"],
+    convert: convertClaudeToGemini,
+    write: writeGeminiBundle,
   },
   kiro: {
     name: "kiro",
     implemented: true,
-    convert: convertClaudeToKiro as TargetHandler<KiroBundle>["convert"],
-    write: writeKiroBundle as TargetHandler<KiroBundle>["write"],
+    convert: convertClaudeToKiro,
+    write: writeKiroBundle,
   },
 }
