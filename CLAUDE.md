@@ -1,6 +1,6 @@
 # Every Marketplace - Claude Code Plugin Marketplace
 
-This repository is a Claude Code plugin marketplace that distributes the `compound-engineering` plugin to developers building with AI-powered tools.
+This repository is a Claude Code plugin marketplace that distributes plugins to developers building with AI-powered tools.
 
 ## Repository Structure
 
@@ -14,15 +14,28 @@ every-marketplace/
 │   ├── js/                       # JavaScript
 │   └── pages/                    # Reference pages
 └── plugins/
-    └── compound-engineering/   # The actual plugin
+    ├── compound-engineering/     # AI-powered development tools
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json        # Plugin metadata
+    │   ├── agents/                # 24 specialized AI agents
+    │   ├── commands/              # 13 slash commands
+    │   ├── skills/                # 11 skills
+    │   ├── mcp-servers/           # 2 MCP servers (playwright, context7)
+    │   ├── README.md              # Plugin documentation
+    │   └── CHANGELOG.md           # Version history
+    ├── coding-tutor/             # Personalized coding tutorials
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json
+    │   ├── commands/              # 3 commands
+    │   ├── skills/                # 1 skill
+    │   └── README.md
+    └── notion-workspace/         # Notion workspace integration
         ├── .claude-plugin/
-        │   └── plugin.json        # Plugin metadata
-        ├── agents/                # 24 specialized AI agents
-        ├── commands/              # 13 slash commands
-        ├── skills/                # 11 skills
-        ├── mcp-servers/           # 2 MCP servers (playwright, context7)
-        ├── README.md              # Plugin documentation
-        └── CHANGELOG.md           # Version history
+        │   └── plugin.json
+        ├── .mcp.json              # Notion MCP server config
+        ├── commands/              # 10 slash commands
+        ├── skills/                # 4 skills
+        └── README.md
 ```
 
 ## Philosophy: Compounding Engineering

@@ -32,6 +32,18 @@
       "homepage": "https://github.com/EveryInc/compound-engineering-plugin",
       "tags": ["coding", "programming", "tutorial", "learning", "spaced-repetition", "education"],
       "source": "./plugins/coding-tutor"
+    },
+    {
+      "name": "notion-workspace",
+      "description": "Notion workspace integration with 10 commands, 4 skills, and 1 MCP server for knowledge capture, meeting intelligence, research documentation, and spec-to-implementation workflows.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Notion Labs",
+        "url": "https://www.notion.so"
+      },
+      "homepage": "https://github.com/makenotion/claude-code-notion-plugin",
+      "tags": ["notion", "workspace", "knowledge-management", "meeting-intelligence", "research", "documentation", "project-management"],
+      "source": "./plugins/notion-workspace"
     }
   ]
 }
