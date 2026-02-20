@@ -48,8 +48,9 @@
         <div class="nav-section">
           <h3>On This Page</h3>
           <ul>
-            <li><a href="#workflow-commands">Workflow (four)</a></li>
+            <li><a href="#workflow-commands">Workflow (4)</a></li>
             <li><a href="#utility-commands">Utility (12)</a></li>
+            <li><a href="#notion-commands">Notion (10)</a></li>
           </ul>
         </div>
       </nav>
@@ -494,6 +495,142 @@
             </p>
             <div class="card-code-block">
               <pre><code>/prime</code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- Notion Workspace Commands -->
+        <section id="notion-commands">
+          <h2><i class="fa-solid fa-n"></i> Notion Workspace Commands (10)</h2>
+          <p>These commands come from the <strong>notion-workspace</strong> plugin. They connect Claude Code to your Notion workspace through the Notion MCP server, enabling search, page creation, task management, and more.</p>
+
+          <div class="callout callout-info">
+            <div class="callout-icon"><i class="fa-solid fa-circle-info"></i></div>
+            <div class="callout-content">
+              <p>Requires the notion-workspace plugin: <code>/plugin install notion-workspace</code></p>
+            </div>
+          </div>
+
+          <div class="command-detail" id="notion-search">
+            <div class="command-detail-header">
+              <code class="command-detail-name">/Notion:search</code>
+            </div>
+            <p class="command-detail-description">
+              Search your entire Notion workspace using natural-language queries. Finds pages, databases, and content across all spaces.
+            </p>
+            <div class="card-code-block">
+              <pre><code>/Notion:search quarterly OKRs
+/Notion:search onboarding documentation</code></pre>
+            </div>
+          </div>
+
+          <div class="command-detail" id="notion-find">
+            <div class="command-detail-header">
+              <code class="command-detail-name">/Notion:find</code>
+            </div>
+            <p class="command-detail-description">
+              Quickly find pages or databases by title keywords. Faster than full search when you know the name.
+            </p>
+            <div class="card-code-block">
+              <pre><code>/Notion:find Sprint Planning
+/Notion:find API Design Spec</code></pre>
+            </div>
+          </div>
+
+          <div class="command-detail" id="notion-create-page">
+            <div class="command-detail-header">
+              <code class="command-detail-name">/Notion:create-page</code>
+            </div>
+            <p class="command-detail-description">
+              Create a new Notion page with sensible defaults under a given parent page or database.
+            </p>
+            <div class="card-code-block">
+              <pre><code>/Notion:create-page Meeting Notes - Feb 20 under Team Wiki</code></pre>
+            </div>
+          </div>
+
+          <div class="command-detail" id="notion-create-task">
+            <div class="command-detail-header">
+              <code class="command-detail-name">/Notion:create-task</code>
+            </div>
+            <p class="command-detail-description">
+              Create a task in your Notion tasks database with title, status, assignee, and other properties.
+            </p>
+            <div class="card-code-block">
+              <pre><code>/Notion:create-task Fix login redirect bug, priority high</code></pre>
+            </div>
+          </div>
+
+          <div class="command-detail" id="notion-create-database-row">
+            <div class="command-detail-header">
+              <code class="command-detail-name">/Notion:create-database-row</code>
+            </div>
+            <p class="command-detail-description">
+              Insert a row into any specified Notion database with the properties you provide.
+            </p>
+            <div class="card-code-block">
+              <pre><code>/Notion:create-database-row Add entry to Bug Tracker: title "Memory leak", status "Open"</code></pre>
+            </div>
+          </div>
+
+          <div class="command-detail" id="notion-database-query">
+            <div class="command-detail-header">
+              <code class="command-detail-name">/Notion:database-query</code>
+            </div>
+            <p class="command-detail-description">
+              Query a Notion database by name or ID with optional filters and sorting.
+            </p>
+            <div class="card-code-block">
+              <pre><code>/Notion:database-query Tasks where status is "In Progress"
+/Notion:database-query Sprint Backlog sorted by priority</code></pre>
+            </div>
+          </div>
+
+          <div class="command-detail" id="notion-tasks-setup">
+            <div class="command-detail-header">
+              <code class="command-detail-name">/Notion:tasks:setup</code>
+            </div>
+            <p class="command-detail-description">
+              Set up a Notion task board for tracking implementation work. Configure templates or connect to an existing board.
+            </p>
+            <div class="card-code-block">
+              <pre><code>/Notion:tasks:setup</code></pre>
+            </div>
+          </div>
+
+          <div class="command-detail" id="notion-tasks-build">
+            <div class="command-detail-header">
+              <code class="command-detail-name">/Notion:tasks:build</code>
+            </div>
+            <p class="command-detail-description">
+              Build and implement a task from a Notion page URL. Tracks status and posts progress updates back to the page.
+            </p>
+            <div class="card-code-block">
+              <pre><code>/Notion:tasks:build https://notion.so/my-workspace/task-page-id</code></pre>
+            </div>
+          </div>
+
+          <div class="command-detail" id="notion-tasks-plan">
+            <div class="command-detail-header">
+              <code class="command-detail-name">/Notion:tasks:plan</code>
+            </div>
+            <p class="command-detail-description">
+              Create an implementation plan for a task described in a Notion page. Breaks down the work into actionable steps.
+            </p>
+            <div class="card-code-block">
+              <pre><code>/Notion:tasks:plan https://notion.so/my-workspace/spec-page-id</code></pre>
+            </div>
+          </div>
+
+          <div class="command-detail" id="notion-tasks-explain-diff">
+            <div class="command-detail-header">
+              <code class="command-detail-name">/Notion:tasks:explain-diff</code>
+            </div>
+            <p class="command-detail-description">
+              Generate a Notion document explaining code changes with background context, intuition, code walkthrough, verification steps, alternatives considered, and a comprehension quiz.
+            </p>
+            <div class="card-code-block">
+              <pre><code>/Notion:tasks:explain-diff</code></pre>
             </div>
           </div>
         </section>

@@ -51,6 +51,7 @@
             <li><a href="#development-tools">Development (8)</a></li>
             <li><a href="#content-workflow">Content & Workflow (3)</a></li>
             <li><a href="#image-generation">Image Generation (1)</a></li>
+            <li><a href="#notion-skills">Notion Workspace (4)</a></li>
           </ul>
         </div>
       </nav>
@@ -582,6 +583,131 @@ response = client.models.generate_content(
 
             <div class="card-code-block">
               <pre><code>skill: gemini-imagegen</code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- Notion Workspace Skills -->
+        <section id="notion-skills">
+          <h2><i class="fa-solid fa-n"></i> Notion Workspace (4)</h2>
+          <p>These skills come from the <strong>notion-workspace</strong> plugin. They teach Claude how to work intelligently inside your Notion workspace—capturing knowledge, preparing meetings, conducting research, and turning specs into tasks.</p>
+
+          <div class="callout callout-info">
+            <div class="callout-icon"><i class="fa-solid fa-circle-info"></i></div>
+            <div class="callout-content">
+              <p>Requires the notion-workspace plugin: <code>/plugin install notion-workspace</code></p>
+            </div>
+          </div>
+
+          <div class="skill-detail" id="knowledge-capture">
+            <div class="skill-detail-header">
+              <h3>knowledge-capture</h3>
+              <span class="skill-badge">Notion</span>
+            </div>
+            <p class="skill-detail-description">
+              Transforms conversations into structured Notion documentation. When you solve a problem, make a decision, or explain something useful in chat, this skill captures it as a permanent knowledge artifact—FAQs, decision logs, how-to guides, or wiki entries.
+            </p>
+            <h4>Content Types</h4>
+            <ul>
+              <li><strong>Concepts</strong> - Core ideas and explanations</li>
+              <li><strong>How-To Guides</strong> - Step-by-step procedures</li>
+              <li><strong>Decisions</strong> - Architectural and design decision records</li>
+              <li><strong>FAQs</strong> - Common questions from conversations</li>
+              <li><strong>Learning</strong> - Post-mortems and lessons learned</li>
+              <li><strong>Reference</strong> - Technical reference documentation</li>
+            </ul>
+            <h4>Reference Materials (7)</h4>
+            <ul>
+              <li>Database schema patterns and best practices</li>
+              <li>Decision log, FAQ, how-to guide, team wiki, learning, and documentation database schemas</li>
+            </ul>
+            <div class="card-code-block">
+              <pre><code>skill: knowledge-capture</code></pre>
+            </div>
+          </div>
+
+          <div class="skill-detail" id="meeting-intelligence">
+            <div class="skill-detail-header">
+              <h3>meeting-intelligence</h3>
+              <span class="skill-badge">Notion</span>
+            </div>
+            <p class="skill-detail-description">
+              Prepares for meetings by gathering context from your Notion workspace and enriching it with research. Creates both an internal pre-read document and an external-facing agenda, so everyone walks in prepared instead of catching up.
+            </p>
+            <h4>Meeting Types</h4>
+            <ul>
+              <li><strong>Decision</strong> - Stakeholder alignment with options analysis</li>
+              <li><strong>Status Update</strong> - Progress tracking with blockers</li>
+              <li><strong>Customer</strong> - External meetings with account context</li>
+              <li><strong>Brainstorming</strong> - Creative sessions with prior art</li>
+              <li><strong>Sprint Planning</strong> - Backlog review with velocity data</li>
+              <li><strong>Retrospective</strong> - Team reflection with action items</li>
+            </ul>
+            <h4>Workflow</h4>
+            <ol>
+              <li>Gather context from Notion workspace</li>
+              <li>Search for related pages and data</li>
+              <li>Enrich with external research</li>
+              <li>Create internal pre-read document</li>
+              <li>Create external agenda</li>
+              <li>Link documents together</li>
+            </ol>
+            <div class="card-code-block">
+              <pre><code>skill: meeting-intelligence</code></pre>
+            </div>
+          </div>
+
+          <div class="skill-detail" id="research-documentation">
+            <div class="skill-detail-header">
+              <h3>research-documentation</h3>
+              <span class="skill-badge">Notion</span>
+            </div>
+            <p class="skill-detail-description">
+              Searches across your Notion workspace, synthesizes findings, and creates structured research documents. Whether it's a competitor analysis, technical investigation, or market research, this skill turns scattered information into actionable reports.
+            </p>
+            <h4>Output Formats</h4>
+            <ul>
+              <li><strong>Research Summary</strong> - Concise synthesis of findings</li>
+              <li><strong>Comprehensive Report</strong> - Detailed analysis with sections</li>
+              <li><strong>Quick Brief</strong> - One-page executive overview</li>
+              <li><strong>Comparison</strong> - Side-by-side option analysis</li>
+            </ul>
+            <h4>Reference Materials (11)</h4>
+            <ul>
+              <li>Format selection guide and templates for each output type</li>
+              <li>Advanced search techniques and citation styles</li>
+            </ul>
+            <div class="card-code-block">
+              <pre><code>skill: research-documentation</code></pre>
+            </div>
+          </div>
+
+          <div class="skill-detail" id="spec-to-implementation">
+            <div class="skill-detail-header">
+              <h3>spec-to-implementation</h3>
+              <span class="skill-badge">Notion</span>
+            </div>
+            <p class="skill-detail-description">
+              Transforms product or technical specs into actionable implementation plans with Notion task tracking. Finds the spec, analyzes requirements, creates a structured plan, then creates tasks in your Notion database and tracks progress as you build.
+            </p>
+            <h4>Workflow</h4>
+            <ol>
+              <li>Find and fetch the spec from Notion</li>
+              <li>Analyze requirements and constraints</li>
+              <li>Create implementation plan (standard or quick)</li>
+              <li>Find task database in workspace</li>
+              <li>Create tasks with dependencies</li>
+              <li>Track progress with milestone updates</li>
+            </ol>
+            <h4>Implementation Patterns</h4>
+            <ul>
+              <li>Feature flags for gradual rollout</li>
+              <li>Database migrations with rollback plans</li>
+              <li>API development with versioning</li>
+              <li>UI components with design specs</li>
+            </ul>
+            <div class="card-code-block">
+              <pre><code>skill: spec-to-implementation</code></pre>
             </div>
           </div>
         </section>
