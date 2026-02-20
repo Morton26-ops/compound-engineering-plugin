@@ -50,6 +50,7 @@
           <ul>
             <li><a href="#playwright">Playwright</a></li>
             <li><a href="#context7">Context7</a></li>
+            <li><a href="#notion">Notion</a></li>
             <li><a href="#manual-config">Manual Configuration</a></li>
           </ul>
         </div>
@@ -259,6 +260,42 @@
   "context7": {
     "type": "http",
     "url": "https://mcp.context7.com/mcp"
+  }
+}</code></pre>
+          </div>
+        </section>
+
+        <!-- Notion MCP Server -->
+        <section id="notion">
+          <h2><i class="fa-solid fa-n"></i> Notion</h2>
+          <p>
+            Your Notion workspace, accessible to Claude. Search pages, query databases, create content, and manage tasks—all without leaving the terminal. The Notion MCP server connects via OAuth, so your data stays secure and you control exactly what Claude can access.
+          </p>
+
+          <div class="callout callout-info">
+            <div class="callout-icon"><i class="fa-solid fa-circle-info"></i></div>
+            <div class="callout-content">
+              <p>Requires the notion-workspace plugin: <code>/plugin install notion-workspace</code></p>
+            </div>
+          </div>
+
+          <h3>Capabilities</h3>
+          <ul>
+            <li><strong>Search</strong> - Find pages, databases, and content across your workspace</li>
+            <li><strong>Read</strong> - Retrieve page content, database schemas, and properties</li>
+            <li><strong>Create</strong> - Create new pages, tasks, and database rows</li>
+            <li><strong>Update</strong> - Modify pages, append blocks, and update properties</li>
+          </ul>
+
+          <h3>Authentication</h3>
+          <p>The Notion MCP server uses OAuth. On first use, you'll be prompted to authorize Claude Code to access your Notion workspace. No API keys to manage.</p>
+
+          <h3>Configuration</h3>
+          <div class="card-code-block">
+            <pre><code>{
+  "notion": {
+    "type": "http",
+    "url": "https://mcp.notion.com/mcp"
   }
 }</code></pre>
           </div>
